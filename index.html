@@ -1,1 +1,262 @@
-base64_encoded_content_here
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Landing Page</title>
+    <style>
+        body { 
+            margin: 0;
+            background-color: #000000;
+            overflow: hidden;
+        }
+        canvas { 
+            display: block; 
+        }
+        nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-family: Arial, sans-serif;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        nav a:hover {
+            opacity: 1;
+        }
+        #debug {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: monospace;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            white-space: pre;
+            line-height: 1.5;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.151.3/three.min.js"></script>
+</head>
+<body>
+    <nav>
+        <a href="#blog">Blog</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    <div id="debug">Initializing...</div>
+    <script>
+        const debug = document.getElementById('debug');
+        function log(message) {
+            debug.textContent += '\n' + message;
+            console.log(message);
+        }
+
+        try {
+            log('Script started');
+
+            // Scene setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true 
+            });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000);
+            document.body.appendChild(renderer.domElement);
+            log('Renderer initialized');
+
+            // Create central sphere
+            const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+            const sphereMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4444ff,
+                emissive: 0x112244,
+                metalness: 0.5,
+                roughness: 0.1
+            });
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            scene.add(sphere);
+            log('Sphere created');
+
+            const textGroup = new THREE.Group();
+            
+            // Create block letters
+            function createBlockLetter(letter, angle, letterIndex) {
+                const letterGroup = new THREE.Group();
+                const material = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    emissive: 0x222222
+                });
+
+                const w = 0.2;  // width
+                const h = 1;    // height
+                const d = 0.2;  // depth
+                const segments = [];
+
+                switch(letter) {
+                    case 'H':
+                        segments.push(
+                            {pos: [-0.3, 0, 0], scale: [w, h, d]},     // left vertical
+                            {pos: [0.3, 0, 0], scale: [w, h, d]},      // right vertical
+                            {pos: [0, 0, 0], scale: [0.6, w, d]}       // middle horizontal
+                        );
+                        break;
+                    case 'R':
+                        segments.push(
+                            {pos: [-0.3, 0, 0], scale: [w, h, d]},     // left vertical
+                            {pos: [0, 0.25, 0], scale: [0.6, w, d]},   // top horizontal
+                            {pos: [0, -0.25, 0], scale: [0.6, w, d]},  // middle horizontal
+                            {pos: [0.3, 0.25, 0], scale: [w, 0.5, d]}, // top right
+                            {pos: [0.3, -0.25, 0], scale: [w, 0.5, d]} // bottom right diagonal
+                        );
+                        break;
+                    case 'C':
+                        segments.push(
+                            {pos: [-0.3, 0, 0], scale: [w, h, d]},     // left vertical
+                            {pos: [0, 0.45, 0], scale: [0.6, w, d]},   // top horizontal
+                            {pos: [0, -0.45, 0], scale: [0.6, w, d]}   // bottom horizontal
+                        );
+                        break;
+                    case 'A':
+                        segments.push(
+                            {pos: [-0.3, 0, 0], scale: [w, h, d]},     // left vertical
+                            {pos: [0.3, 0, 0], scale: [w, h, d]},      // right vertical
+                            {pos: [0, 0.45, 0], scale: [0.6, w, d]},   // top horizontal
+                            {pos: [0, 0, 0], scale: [0.6, w, d]}       // middle horizontal
+                        );
+                        break;
+                    case 'T':
+                        segments.push(
+                            {pos: [0, 0, 0], scale: [w, h, d]},        // vertical
+                            {pos: [0, 0.45, 0], scale: [0.8, w, d]}    // top horizontal
+                        );
+                        break;
+                }
+
+                segments.forEach(seg => {
+                    const geometry = new THREE.BoxGeometry(seg.scale[0], seg.scale[1], seg.scale[2]);
+                    const mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(seg.pos[0], seg.pos[1], seg.pos[2]);
+                    letterGroup.add(mesh);
+                });
+
+                // Position in orbit
+                const radius = 4;
+                const spacing = 1.2;
+                const letterAngle = angle + (letterIndex * spacing * (Math.PI / 16));
+                letterGroup.position.x = Math.cos(letterAngle) * radius;
+                letterGroup.position.z = Math.sin(letterAngle) * radius;
+                letterGroup.lookAt(0, 0, 0);
+                
+                return letterGroup;
+            }
+
+            // Create words
+            const words = [
+                {text: "HRC", angle: 0},
+                {text: "ART", angle: Math.PI}
+            ];
+
+            words.forEach(word => {
+                word.text.split('').forEach((letter, i) => {
+                    const letterMesh = createBlockLetter(letter, word.angle, i);
+                    textGroup.add(letterMesh);
+                });
+            });
+
+            scene.add(textGroup);
+            log('Letters created');
+
+            // Lighting
+            const pointLight = new THREE.PointLight(0x4444ff, 2);
+            pointLight.position.set(0, 0, 0);
+            scene.add(pointLight);
+
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+
+            const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight1.position.set(5, 5, 5);
+            scene.add(directionalLight1);
+
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight2.position.set(-5, -5, -5);
+            scene.add(directionalLight2);
+            log('Lights created');
+
+            camera.position.z = 10;
+
+            // Mouse movement
+            let mouseX = 0;
+            let mouseY = 0;
+            const mouseSensitivity = 0.0001;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - window.innerWidth / 2) * mouseSensitivity;
+                mouseY = (event.clientY - window.innerHeight / 2) * mouseSensitivity;
+            });
+
+            // Reset mouse position when cursor leaves window
+            document.addEventListener('mouseleave', () => {
+                mouseX = 0;
+                mouseY = 0;
+            });
+
+            const clock = new THREE.Clock();
+            log('Starting animation...');
+
+            function animate() {
+                const elapsedTime = clock.getElapsedTime();
+
+                // Rotate sphere
+                sphere.rotation.y += 0.005;
+                
+                // Rotate text group clockwise
+                textGroup.rotation.y -= 0.02;
+                
+                // Handle mouse interaction and return to center
+                if (!mouseX && !mouseY) {
+                    textGroup.rotation.x *= 0.95;
+                    textGroup.rotation.z *= 0.95;
+                } else {
+                    textGroup.rotation.x += mouseY * 0.05;
+                    textGroup.rotation.z += mouseX * 0.05;
+                    
+                    textGroup.rotation.x = Math.max(Math.min(textGroup.rotation.x, Math.PI/4), -Math.PI/4);
+                    textGroup.rotation.z = Math.max(Math.min(textGroup.rotation.z, Math.PI/4), -Math.PI/4);
+                }
+
+                // Pulsing light
+                const pulseIntensity = 2 + Math.sin(elapsedTime * 2) * 0.5;
+                pointLight.intensity = pulseIntensity;
+
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+            log('Animation loop started');
+
+        } catch (error) {
+            log('Setup error: ' + error.message);
+            console.error('Setup error:', error);
+        }
+    </script>
+</body>
+</html>
