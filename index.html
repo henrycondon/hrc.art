@@ -23,8 +23,7 @@
             font-family: monospace;
             background: rgba(0,0,0,0.7);
             padding: 10px;
-            max-height: 200px;
-            overflow-y: auto;
+            display: block;
         }
         canvas {
             display: block;
@@ -90,7 +89,7 @@
     </style>
 </head>
 <body>
-    <div id="debug"></div>
+    <div id="debug">Debug Messages:</div>
     <button class="menu-toggle">
         <span></span>
         <span></span>
@@ -104,18 +103,16 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script>
-        // Debug logging
         const debug = document.getElementById('debug');
         function log(msg) {
-            debug.innerHTML += msg + '<br>';
+            debug.innerHTML += '<br>' + msg;
             console.log(msg);
         }
 
-        log('Page loaded');
-        log('Three.js version: ' + THREE.REVISION);
+        log('Starting initialization...');
 
-        // Scene setup
         try {
+            // Scene setup
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -123,93 +120,71 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setClearColor(0x000000);
             document.body.appendChild(renderer.domElement);
-            log('Renderer initialized');
+            log('Basic scene setup complete');
 
-            // Load font
-            const loader = new THREE.FontLoader();
-            loader.load('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json', function(font) {
-                log('Font loaded successfully');
+            // Text setup
+            const text = 'HRC.ART';
+            const size = text.length * 0.5;
+            const centerX = -size / 2;
 
-                const textOptions = {
-                    font: font,
-                    size: 1,
-                    height: 0.2,
-                    curveSegments: 12,
-                    bevelEnabled: true,
-                    bevelThickness: 0.03,
-                    bevelSize: 0.02
-                };
-
-                // Create text geometries
-                const hrcGeometry = new THREE.TextGeometry('HRC', textOptions);
-                const artGeometry = new THREE.TextGeometry('ART', textOptions);
-                log('Text geometries created');
-
-                const textMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xffffff,
-                    specular: 0x444444,
-                    shininess: 100
-                });
-
-                const hrcMesh = new THREE.Mesh(hrcGeometry, textMaterial);
-                const artMesh = new THREE.Mesh(artGeometry, textMaterial);
-
-                // Center meshes
-                hrcGeometry.computeBoundingBox();
-                artGeometry.computeBoundingBox();
-
-                hrcMesh.position.x = -hrcGeometry.boundingBox.max.x / 2;
-                artMesh.position.x = -artGeometry.boundingBox.max.x / 2;
-
-                hrcMesh.position.z = -2;
-                artMesh.position.z = 2;
-
-                const textGroup = new THREE.Group();
-                textGroup.add(hrcMesh);
-                textGroup.add(artMesh);
-                scene.add(textGroup);
-                log('Text added to scene');
-
-                // Add sphere
-                const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-                const sphereMaterial = new THREE.MeshPhongMaterial({
+            // Create individual cubes for each letter
+            const letters = [];
+            for (let i = 0; i < text.length; i++) {
+                const geometry = new THREE.BoxGeometry(0.8, 1, 0.2);
+                const material = new THREE.MeshPhongMaterial({
                     color: 0xffffff,
                     specular: 0x555555,
                     shininess: 30
                 });
-                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-                scene.add(sphere);
+                const letter = new THREE.Mesh(geometry, material);
+                letter.position.x = centerX + i;
+                letter.position.y = Math.sin(i * 0.5) * 0.5; // Offset Y position in a wave
+                letters.push(letter);
+                scene.add(letter);
+            }
+            log('Letters created');
 
-                // Lighting
-                const light1 = new THREE.DirectionalLight(0xffffff, 1);
-                light1.position.set(1, 1, 1);
-                scene.add(light1);
+            // Lighting
+            const light1 = new THREE.DirectionalLight(0xffffff, 1);
+            light1.position.set(1, 1, 1);
+            scene.add(light1);
 
-                const light2 = new THREE.DirectionalLight(0x8888ff, 0.5);
-                light2.position.set(-1, -1, -1);
-                scene.add(light2);
+            const light2 = new THREE.DirectionalLight(0x8888ff, 0.5);
+            light2.position.set(-1, -1, -1);
+            scene.add(light2);
 
-                const ambientLight = new THREE.AmbientLight(0x404040);
-                scene.add(ambientLight);
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            log('Lights added');
 
-                camera.position.z = 7;
-                log('Scene setup complete');
+            camera.position.z = 8;
 
-                function animate() {
-                    requestAnimationFrame(animate);
-                    textGroup.rotation.y += 0.005;
-                    sphere.rotation.y += 0.01;
-                    renderer.render(scene, camera);
-                }
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
 
-                animate();
-                log('Animation started');
-            }, undefined, function(error) {
-                log('Error loading font: ' + error);
+                // Animate each letter
+                letters.forEach((letter, i) => {
+                    letter.rotation.x = Math.sin(Date.now() * 0.001 + i * 0.5) * 0.3;
+                    letter.rotation.y = Math.cos(Date.now() * 0.001 + i * 0.5) * 0.3;
+                    letter.position.y = Math.sin(Date.now() * 0.002 + i * 0.5) * 0.5;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+            log('Animation started');
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
         } catch (error) {
-            log('Error in setup: ' + error);
+            log('Error in setup: ' + error.message);
         }
 
         // Menu toggle
