@@ -1,0 +1,43 @@
+---
+---
+
+@import "minima";
+
+// Dark theme overrides
+body {
+  background-color: #1a1a1a;
+  color: #e6e6e6;
+}
+
+.site-header {
+  border-top: 5px solid #424242;
+  border-bottom: 1px solid #424242;
+  background-color: #262626;
+}
+
+.site-title, .site-title:visited {
+  color: #e6e6e6;
+}
+
+.site-nav {
+  background-color: #262626;
+}
+
+.post-link {
+  color: #4a9eff;
+  &:visited {
+    color: #805acb;
+  }
+}
+
+.post-list > li {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #262626;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.post-meta {
+  color: #888;
+}

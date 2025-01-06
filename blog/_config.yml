@@ -1,10 +1,21 @@
 title: HRC.ART Blog
 description: Thoughts on art, technology, and everything in between
-baseurl: "/blog"
-url: "https://hrc.art"
+url: "https://henrycondon.github.io"
+baseurl: "/hrc.art/blog"
 
 # Build settings
 theme: minima
+
+# Theme settings
+minima:
+  skin: dark
+
+# Custom settings
+show_excerpts: true
+header_pages:
+  - about.md
+
+# Plugins
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
