@@ -1,0 +1,8 @@
+title: HRC ART
+baseurl: ""
+url: "https://henrycondon.github.io"
+
+# Build settings
+markdown: kramdown
+exclude: []
+keep_files: []
