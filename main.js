@@ -1,3 +1,7 @@
+import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
 // Scene setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -8,9 +12,11 @@ renderer.setClearColor(0x000000);
 document.body.appendChild(renderer.domElement);
 
 // Text geometry
-const fontLoader = new THREE.FontLoader();
-fontLoader.load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/fonts/helvetiker_bold.typeface.json', function(font) {
-    const hrcGeometry = new THREE.TextGeometry('HRC', {
+const fontLoader = new FontLoader();
+fontLoader.load('https://unpkg.com/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json', function(font) {
+    console.log('Font loaded successfully');
+    
+    const hrcGeometry = new TextGeometry('HRC', {
         font: font,
         size: 1,
         height: 0.2,
@@ -22,7 +28,7 @@ fontLoader.load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/fonts/helv
         bevelSegments: 5
     });
 
-    const artGeometry = new THREE.TextGeometry('ART', {
+    const artGeometry = new TextGeometry('ART', {
         font: font,
         size: 1,
         height: 0.2,
@@ -93,14 +99,14 @@ fontLoader.load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/fonts/helv
     // Animation
     function animate() {
         requestAnimationFrame(animate);
-
         textGroup.rotation.y += 0.01;
         sphere.rotation.y += 0.005;
-
         renderer.render(scene, camera);
     }
 
     animate();
+}, undefined, function(error) {
+    console.error('Error loading font:', error);
 });
 
 // Handle window resize
