@@ -1,0 +1,10 @@
+title: HRC.ART Blog
+description: Thoughts on art, technology, and everything in between
+baseurl: "/blog"
+url: "https://hrc.art"
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
