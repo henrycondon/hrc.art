@@ -159,6 +159,20 @@
               "icon": "lucide-list",
               "title": "Outline of Test"
             }
+          },
+          {
+            "id": "d467f76bd57211dd",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
           }
         ]
       }
@@ -175,11 +189,15 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "obsidian-git:Open Git source control": false
+      "obsidian-git:Open Git source control": false,
+      "audio-recorder:Start/stop recording": false,
+      "markdown-importer:Open format converter": false
     }
   },
   "active": "0e0ba113fcd77f16",
   "lastOpenFiles": [
+    "main.js",
+    "index.html",
     "README.md",
     "Test.md"
   ]
