@@ -6,16 +6,10 @@ baseurl: "/hrc.art/blog"
 # Build settings
 theme: minima
 
-# Theme settings
+# Minima specific settings
 minima:
+  date_format: "%b %-d, %Y"
   skin: dark
 
 # Custom settings
 show_excerpts: true
-header_pages:
-  - about.md
-
-# Plugins
-plugins:
-  - jekyll-feed
-  - jekyll-seo-tag
